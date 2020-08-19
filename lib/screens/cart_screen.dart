@@ -9,7 +9,6 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-
   buildCartItems(Order order) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -56,33 +55,37 @@ class _CartScreenState extends State<CartScreen> {
                       GestureDetector(
                         onTap: () {
                           setState(() {
-                            order.quantity--;
+                            if (order.quantity > 0) {
+                              order.quantity--;
+                            }
                           });
-                         
                         },
                         child: Text(
                           '-',
                           style: TextStyle(
                               color: Theme.of(context).primaryColor,
-                              fontSize: 20,
+                              fontSize: 35,
                               fontWeight: FontWeight.w600),
                         ),
                       ),
                       Text(
-                        
                         order.quantity.toString(),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w600),
                       ),
                       GestureDetector(
-                        onTap: (){
+                        onTap: () {
                           setState(() {
-                            order.quantity++;
+                               if (order.quantity < 10) {
+                              order.quantity++;
+                            }
                           });
                         },
                         child: Text(
                           '+',
                           style: TextStyle(
                               color: Theme.of(context).primaryColor,
-                              fontSize: 18,
+                              fontSize: 30,
                               fontWeight: FontWeight.w500),
                         ),
                       ),
@@ -92,7 +95,7 @@ class _CartScreenState extends State<CartScreen> {
               ],
             ),
             Text(
-              '${order.food.price * order.quantity}',
+              '\$${order.food.price * order.quantity.toDouble()}',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
           ],
@@ -103,6 +106,12 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double totalPrice = 0;
+
+    currentUser.cart.forEach((Order order) {
+      totalPrice = totalPrice + order.quantity * order.food.price;
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -111,19 +120,91 @@ class _CartScreenState extends State<CartScreen> {
         ),
         centerTitle: true,
       ),
-      body: ListView.separated(
-        physics: BouncingScrollPhysics(),
-        itemCount: currentUser.cart.length,
-        itemBuilder: (BuildContext context, int index) {
-          Order order = currentUser.cart[index];
-          return buildCartItems(order);
-        },
-        separatorBuilder: (BuildContext context, int index) {
-          return Divider(
-            height: 1,
-            color: Colors.grey,
-          );
-        },
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.separated(
+              physics: BouncingScrollPhysics(),
+              itemCount: currentUser.cart.length + 1,
+              itemBuilder: (BuildContext context, int index) {
+                if (index < currentUser.cart.length) {
+                  Order order = currentUser.cart[index];
+                  return buildCartItems(order);
+                }
+                return Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Estimated Time Delivery:',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            '25 mins',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Total Cost',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            '\$${totalPrice.toStringAsFixed(2)}',
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.green),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 100,
+                      )
+                    ],
+                  ),
+                );
+              },
+              separatorBuilder: (BuildContext context, int index) {
+                return Divider(
+                  height: 1,
+                  color: Colors.grey,
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+      bottomSheet: Container(
+        height: 80,
+        width: MediaQuery.of(context).size.width,
+        color: Theme.of(context).primaryColor,
+        child: FlatButton(
+          child: Text(
+            'CHECKOUT',
+            style: TextStyle(
+              fontSize: 22,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          onPressed: () {},
+        ),
       ),
     );
   }
