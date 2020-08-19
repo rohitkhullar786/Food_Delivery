@@ -10,11 +10,6 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> {
 
-
-  int orderQuantity;
-
-
-
   buildCartItems(Order order) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -60,8 +55,10 @@ class _CartScreenState extends State<CartScreen> {
                     children: [
                       GestureDetector(
                         onTap: () {
-
-                          
+                          setState(() {
+                            order.quantity--;
+                          });
+                         
                         },
                         child: Text(
                           '-',
@@ -72,10 +69,15 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                       ),
                       Text(
+                        
                         order.quantity.toString(),
                       ),
                       GestureDetector(
-                 
+                        onTap: (){
+                          setState(() {
+                            order.quantity++;
+                          });
+                        },
                         child: Text(
                           '+',
                           style: TextStyle(
